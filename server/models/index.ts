@@ -1,0 +1,21 @@
+import User from './User'
+import Role from './Role'
+import Permission from './Permission'
+import Room from './Room'
+import Student from './Student'
+import Course from './Course'
+import Lesson from './Lesson'
+import Quiz from './Quiz'
+import QuizAttempt from './QuizAttempt'
+
+export { User, Role, Permission, Room, Student, Course, Lesson, Quiz, QuizAttempt }
+
+export type { IUser } from './User'
+export type { IRole } from './Role'
+export type { IPermission } from './Permission'
+export type { IRoom } from './Room'
+export type { IStudent } from './Student'
+export type { ICourse } from './Course'
+export type { ILesson } from './Lesson'
+export type { IQuiz, IQuizQuestion } from './Quiz'
+export type { IQuizAttempt, IQuizAnswer } from './QuizAttempt'

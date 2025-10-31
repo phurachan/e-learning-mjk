@@ -1,0 +1,5245 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "E-Learning MJK API",
+    "description": "E-Learning Management System API for managing rooms, students, teachers, courses, lessons, and quizzes",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Development server"
+    },
+    {
+      "url": "https://e-learning-mjk.vercel.app/api",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "name": {
+            "type": "string",
+            "example": "สมชาย ใจดี"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "somchai@example.com"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin"
+          },
+          "department": {
+            "type": "string",
+            "example": "IT"
+          },
+          "position": {
+            "type": "string",
+            "example": "Senior Developer"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          },
+          "website": {
+            "type": "string",
+            "example": "https://example.com"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["64f123456789abcd12345679"]
+          },
+          "lastLogin": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345679"
+          },
+          "name": {
+            "type": "string",
+            "example": "ผู้ดูแลระบบ"
+          },
+          "description": {
+            "type": "string",
+            "example": "System Administrator with full access"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["user.create", "user.read", "user.update", "user.delete"]
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdBy": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "Permission": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345680"
+          },
+          "name": {
+            "type": "string",
+            "example": "user.create"
+          },
+          "description": {
+            "type": "string",
+            "example": "Create new users"
+          },
+          "module": {
+            "type": "string",
+            "example": "user-management"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["create", "read", "update", "delete", "access", "hr_view", "approve", "reject", "balance_manage", "export", "submit", "reports"],
+            "example": "create"
+          },
+          "resource": {
+            "type": "string",
+            "example": "user"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["menu", "action", "input"],
+            "example": "action"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation completed successfully"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "example": 10
+          },
+          "total": {
+            "type": "integer",
+            "example": 100
+          },
+          "pages": {
+            "type": "integer",
+            "example": 10
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 400
+          },
+          "statusMessage": {
+            "type": "string",
+            "description": "i18n constant key for error message",
+            "example": "REQUIRED_FIELDS_MISSING"
+          },
+          "message": {
+            "type": "string",
+            "description": "i18n constant key for error message",
+            "example": "REQUIRED_FIELDS_MISSING"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "messages": {
+                "type": "object",
+                "properties": {
+                  "th": {
+                    "type": "string",
+                    "example": "ข้อมูลจำเป็นขาดหายไป"
+                  },
+                  "en": {
+                    "type": "string",
+                    "example": "Required fields are missing"
+                  }
+                }
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Array of i18n constant keys for specific validation errors",
+                "example": ["FIELD_EMAIL_REQUIRED", "FIELD_PASSWORD_REQUIRED"]
+              }
+            }
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "สมชาย ใจดี"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "somchai@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
+          },
+          "department": {
+            "type": "string",
+            "example": "IT"
+          },
+          "position": {
+            "type": "string",
+            "example": "Developer"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          }
+        }
+      },
+      "UserCreateRequest": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "สมชาย ใจดี"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "somchai@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
+          },
+          "department": {
+            "type": "string",
+            "example": "IT"
+          },
+          "position": {
+            "type": "string",
+            "example": "Developer"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          },
+          "website": {
+            "type": "string",
+            "example": "https://example.com"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["64f123456789abcd12345679"]
+          }
+        }
+      },
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "สมชาย ใจดี"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "somchai@example.com"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin"
+          },
+          "department": {
+            "type": "string",
+            "example": "IT"
+          },
+          "position": {
+            "type": "string",
+            "example": "Senior Developer"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          },
+          "website": {
+            "type": "string",
+            "example": "https://example.com"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["64f123456789abcd12345679"]
+          }
+        }
+      },
+      "Room": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345681"
+          },
+          "name": {
+            "type": "string",
+            "example": "ม.1/1"
+          },
+          "code": {
+            "type": "string",
+            "example": "M1-1"
+          },
+          "grade": {
+            "type": "integer",
+            "example": 1
+          },
+          "section": {
+            "type": "integer",
+            "example": 1
+          },
+          "academicYear": {
+            "type": "integer",
+            "example": 2568
+          },
+          "capacity": {
+            "type": "integer",
+            "example": 40
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdBy": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "RoomCreateRequest": {
+        "type": "object",
+        "required": ["name", "code", "grade", "section", "academicYear"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "ม.1/1"
+          },
+          "code": {
+            "type": "string",
+            "example": "M1-1"
+          },
+          "grade": {
+            "type": "integer",
+            "example": 1
+          },
+          "section": {
+            "type": "integer",
+            "example": 1
+          },
+          "academicYear": {
+            "type": "integer",
+            "example": 2568
+          },
+          "capacity": {
+            "type": "integer",
+            "example": 40
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "RoomUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "ม.1/1"
+          },
+          "code": {
+            "type": "string",
+            "example": "M1-1"
+          },
+          "grade": {
+            "type": "integer",
+            "example": 1
+          },
+          "section": {
+            "type": "integer",
+            "example": 1
+          },
+          "academicYear": {
+            "type": "integer",
+            "example": 2568
+          },
+          "capacity": {
+            "type": "integer",
+            "example": 40
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Student": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345682"
+          },
+          "studentId": {
+            "type": "string",
+            "example": "S2568001"
+          },
+          "firstname": {
+            "type": "string",
+            "example": "สมชาย"
+          },
+          "lastname": {
+            "type": "string",
+            "example": "ใจดี"
+          },
+          "fullname": {
+            "type": "string",
+            "example": "สมชาย ใจดี"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "room": {
+            "type": "string",
+            "example": "64f123456789abcd12345681"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "2010-05-15"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110"
+          },
+          "parentName": {
+            "type": "string",
+            "example": "นายสมศักดิ์ ใจดี"
+          },
+          "parentPhone": {
+            "type": "string",
+            "example": "089-876-5432"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdBy": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "StudentCreateRequest": {
+        "type": "object",
+        "required": ["studentId", "firstname", "lastname", "room"],
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "example": "S2568001"
+          },
+          "firstname": {
+            "type": "string",
+            "example": "สมชาย"
+          },
+          "lastname": {
+            "type": "string",
+            "example": "ใจดี"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "room": {
+            "type": "string",
+            "example": "64f123456789abcd12345681"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "2010-05-15"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110"
+          },
+          "parentName": {
+            "type": "string",
+            "example": "นายสมศักดิ์ ใจดี"
+          },
+          "parentPhone": {
+            "type": "string",
+            "example": "089-876-5432"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "StudentUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "example": "S2568001"
+          },
+          "firstname": {
+            "type": "string",
+            "example": "สมชาย"
+          },
+          "lastname": {
+            "type": "string",
+            "example": "ใจดี"
+          },
+          "phone": {
+            "type": "string",
+            "example": "081-234-5678"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "room": {
+            "type": "string",
+            "example": "64f123456789abcd12345681"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "2010-05-15"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110"
+          },
+          "parentName": {
+            "type": "string",
+            "example": "นายสมศักดิ์ ใจดี"
+          },
+          "parentPhone": {
+            "type": "string",
+            "example": "089-876-5432"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "StudentLoginRequest": {
+        "type": "object",
+        "required": ["studentId", "password"],
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "example": "S2568001"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123"
+          }
+        }
+      },
+      "Course": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "name": {
+            "type": "string",
+            "example": "คณิตศาสตร์"
+          },
+          "code": {
+            "type": "string",
+            "example": "MATH101"
+          },
+          "description": {
+            "type": "string",
+            "example": "คณิตศาสตร์พื้นฐาน ม.1 เรียนเกี่ยวกับเลขจำนวนเต็ม ทศนิยม และเศษส่วน"
+          },
+          "teacher": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["64f123456789abcd12345681", "64f123456789abcd12345684"]
+          },
+          "academicYear": {
+            "type": "integer",
+            "example": 2568
+          },
+          "semester": {
+            "type": "integer",
+            "example": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdBy": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "CourseCreateRequest": {
+        "type": "object",
+        "required": ["name", "code", "teacher", "academicYear", "semester"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "คณิตศาสตร์"
+          },
+          "code": {
+            "type": "string",
+            "example": "MATH101"
+          },
+          "description": {
+            "type": "string",
+            "example": "คณิตศาสตร์พื้นฐาน ม.1 เรียนเกี่ยวกับเลขจำนวนเต็ม ทศนิยม และเศษส่วน"
+          },
+          "teacher": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["64f123456789abcd12345681", "64f123456789abcd12345684"]
+          },
+          "academicYear": {
+            "type": "integer",
+            "example": 2568
+          },
+          "semester": {
+            "type": "integer",
+            "example": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CourseUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "คณิตศาสตร์"
+          },
+          "code": {
+            "type": "string",
+            "example": "MATH101"
+          },
+          "description": {
+            "type": "string",
+            "example": "คณิตศาสตร์พื้นฐาน ม.1 เรียนเกี่ยวกับเลขจำนวนเต็ม ทศนิยม และเศษส่วน"
+          },
+          "teacher": {
+            "type": "string",
+            "example": "64f123456789abcd12345678"
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["64f123456789abcd12345681", "64f123456789abcd12345684"]
+          },
+          "academicYear": {
+            "type": "integer",
+            "example": 2568
+          },
+          "semester": {
+            "type": "integer",
+            "example": 1
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Lesson": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345685"
+          },
+          "title": {
+            "type": "string",
+            "example": "บทที่ 1: จำนวนเต็ม"
+          },
+          "description": {
+            "type": "string",
+            "example": "เรียนรู้เกี่ยวกับจำนวนเต็มบวก ลบ และศูนย์"
+          },
+          "content": {
+            "type": "string",
+            "example": "เนื้อหาบทเรียนแบบ Markdown หรือ HTML"
+          },
+          "course": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "order": {
+            "type": "integer",
+            "example": 1
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["https://example.com/files/lesson1.pdf", "https://example.com/files/worksheet1.pdf"]
+          },
+          "publishDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:00:00Z"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "example": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "LessonCreateRequest": {
+        "type": "object",
+        "required": ["title", "course", "order"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "บทที่ 1: จำนวนเต็ม"
+          },
+          "description": {
+            "type": "string",
+            "example": "เรียนรู้เกี่ยวกับจำนวนเต็มบวก ลบ และศูนย์"
+          },
+          "content": {
+            "type": "string",
+            "example": "เนื้อหาบทเรียนแบบ Markdown หรือ HTML"
+          },
+          "course": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "order": {
+            "type": "integer",
+            "example": 1
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["https://example.com/files/lesson1.pdf"]
+          },
+          "publishDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:00:00Z"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "example": false
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "LessonUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "บทที่ 1: จำนวนเต็ม (ปรับปรุงใหม่)"
+          },
+          "description": {
+            "type": "string",
+            "example": "เรียนรู้เกี่ยวกับจำนวนเต็มบวก ลบ และศูนย์"
+          },
+          "content": {
+            "type": "string",
+            "example": "เนื้อหาบทเรียนแบบ Markdown หรือ HTML"
+          },
+          "course": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "order": {
+            "type": "integer",
+            "example": 1
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["https://example.com/files/lesson1.pdf"]
+          },
+          "publishDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:00:00Z"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "example": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Quiz": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345686"
+          },
+          "title": {
+            "type": "string",
+            "example": "แบบทดสอบบทที่ 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "ทดสอบความเข้าใจเกี่ยวกับจำนวนเต็ม"
+          },
+          "course": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "lesson": {
+            "type": "string",
+            "example": "64f123456789abcd12345685"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuizQuestion"
+            }
+          },
+          "totalPoints": {
+            "type": "number",
+            "example": 100
+          },
+          "passingScore": {
+            "type": "number",
+            "example": 60
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in minutes",
+            "example": 30
+          },
+          "maxAttempts": {
+            "type": "integer",
+            "example": 3
+          },
+          "showResultsImmediately": {
+            "type": "boolean",
+            "example": true
+          },
+          "availableFrom": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:00:00Z"
+          },
+          "availableUntil": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-27T23:59:59Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-15T10:30:00Z"
+          }
+        }
+      },
+      "QuizQuestion": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "example": "2 + 3 เท่ากับเท่าไหร่?"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["multiple_choice", "true_false", "short_answer", "essay"],
+            "example": "multiple_choice"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["3", "4", "5", "6"]
+          },
+          "correctAnswers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["5"]
+          },
+          "points": {
+            "type": "number",
+            "example": 10
+          },
+          "order": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "QuizCreateRequest": {
+        "type": "object",
+        "required": ["title", "course", "questions"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "แบบทดสอบบทที่ 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "ทดสอบความเข้าใจเกี่ยวกับจำนวนเต็ม"
+          },
+          "course": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "lesson": {
+            "type": "string",
+            "example": "64f123456789abcd12345685"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuizQuestion"
+            }
+          },
+          "totalPoints": {
+            "type": "number",
+            "example": 100
+          },
+          "passingScore": {
+            "type": "number",
+            "example": 60
+          },
+          "duration": {
+            "type": "integer",
+            "example": 30
+          },
+          "maxAttempts": {
+            "type": "integer",
+            "example": 3
+          },
+          "showResultsImmediately": {
+            "type": "boolean",
+            "example": true
+          },
+          "availableFrom": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:00:00Z"
+          },
+          "availableUntil": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-27T23:59:59Z"
+          }
+        }
+      },
+      "QuizUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "แบบทดสอบบทที่ 1 (ปรับปรุงใหม่)"
+          },
+          "description": {
+            "type": "string",
+            "example": "ทดสอบความเข้าใจเกี่ยวกับจำนวนเต็ม"
+          },
+          "course": {
+            "type": "string",
+            "example": "64f123456789abcd12345683"
+          },
+          "lesson": {
+            "type": "string",
+            "example": "64f123456789abcd12345685"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuizQuestion"
+            }
+          },
+          "totalPoints": {
+            "type": "number",
+            "example": 100
+          },
+          "passingScore": {
+            "type": "number",
+            "example": 60
+          },
+          "duration": {
+            "type": "integer",
+            "example": 30
+          },
+          "maxAttempts": {
+            "type": "integer",
+            "example": 3
+          },
+          "showResultsImmediately": {
+            "type": "boolean",
+            "example": true
+          },
+          "availableFrom": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:00:00Z"
+          },
+          "availableUntil": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-27T23:59:59Z"
+          }
+        }
+      },
+      "QuizAttempt": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64f123456789abcd12345687"
+          },
+          "quiz": {
+            "type": "string",
+            "example": "64f123456789abcd12345686"
+          },
+          "student": {
+            "type": "string",
+            "example": "64f123456789abcd12345682"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuizAnswer"
+            }
+          },
+          "score": {
+            "type": "number",
+            "example": 85
+          },
+          "maxScore": {
+            "type": "number",
+            "example": 100
+          },
+          "percentage": {
+            "type": "number",
+            "example": 85
+          },
+          "isPassed": {
+            "type": "boolean",
+            "example": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-22T14:30:00Z"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-22T15:00:00Z"
+          },
+          "timeSpent": {
+            "type": "integer",
+            "description": "Time spent in seconds",
+            "example": 1800
+          },
+          "attemptNumber": {
+            "type": "integer",
+            "example": 1
+          },
+          "isGraded": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-22T14:30:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-22T15:00:00Z"
+          }
+        }
+      },
+      "QuizAnswer": {
+        "type": "object",
+        "properties": {
+          "questionIndex": {
+            "type": "integer",
+            "example": 0
+          },
+          "answer": {
+            "type": "string",
+            "example": "5"
+          },
+          "isCorrect": {
+            "type": "boolean",
+            "example": true
+          },
+          "pointsEarned": {
+            "type": "number",
+            "example": 10
+          },
+          "teacherScore": {
+            "type": "number",
+            "example": 8
+          },
+          "teacherFeedback": {
+            "type": "string",
+            "example": "คำตอบถูกต้องแต่ยังขาดรายละเอียด"
+          }
+        }
+      },
+      "FileUploadRequest": {
+        "type": "object",
+        "required": ["file"],
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "File to upload"
+          }
+        }
+      },
+      "StudentReport": {
+        "type": "object",
+        "properties": {
+          "student": {
+            "$ref": "#/components/schemas/Student"
+          },
+          "totalCourses": {
+            "type": "integer",
+            "example": 5
+          },
+          "completedLessons": {
+            "type": "integer",
+            "example": 23
+          },
+          "totalLessons": {
+            "type": "integer",
+            "example": 30
+          },
+          "completedQuizzes": {
+            "type": "integer",
+            "example": 12
+          },
+          "totalQuizzes": {
+            "type": "integer",
+            "example": 15
+          },
+          "averageScore": {
+            "type": "number",
+            "example": 78.5
+          },
+          "passRate": {
+            "type": "number",
+            "example": 83.3
+          },
+          "coursePerformance": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "course": {
+                  "type": "string",
+                  "example": "64f123456789abcd12345683"
+                },
+                "courseName": {
+                  "type": "string",
+                  "example": "คณิตศาสตร์"
+                },
+                "averageScore": {
+                  "type": "number",
+                  "example": 85.5
+                },
+                "completedQuizzes": {
+                  "type": "integer",
+                  "example": 4
+                },
+                "totalQuizzes": {
+                  "type": "integer",
+                  "example": 5
+                }
+              }
+            }
+          }
+        }
+      },
+      "CourseReport": {
+        "type": "object",
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "totalStudents": {
+            "type": "integer",
+            "example": 120
+          },
+          "totalLessons": {
+            "type": "integer",
+            "example": 15
+          },
+          "totalQuizzes": {
+            "type": "integer",
+            "example": 10
+          },
+          "averageScore": {
+            "type": "number",
+            "example": 75.8
+          },
+          "passRate": {
+            "type": "number",
+            "example": 88.3
+          },
+          "completionRate": {
+            "type": "number",
+            "example": 76.7
+          },
+          "topPerformers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "student": {
+                  "$ref": "#/components/schemas/Student"
+                },
+                "averageScore": {
+                  "type": "number",
+                  "example": 95.5
+                }
+              }
+            }
+          }
+        }
+      },
+      "QuizReport": {
+        "type": "object",
+        "properties": {
+          "quiz": {
+            "$ref": "#/components/schemas/Quiz"
+          },
+          "totalAttempts": {
+            "type": "integer",
+            "example": 85
+          },
+          "uniqueStudents": {
+            "type": "integer",
+            "example": 42
+          },
+          "averageScore": {
+            "type": "number",
+            "example": 72.3
+          },
+          "passRate": {
+            "type": "number",
+            "example": 81.4
+          },
+          "averageTimeSpent": {
+            "type": "integer",
+            "description": "Average time in seconds",
+            "example": 1650
+          },
+          "questionAnalysis": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questionIndex": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "question": {
+                  "type": "string",
+                  "example": "2 + 3 เท่ากับเท่าไหร่?"
+                },
+                "correctRate": {
+                  "type": "number",
+                  "example": 92.3
+                },
+                "averagePoints": {
+                  "type": "number",
+                  "example": 9.2
+                }
+              }
+            }
+          }
+        }
+      },
+      "ClassReport": {
+        "type": "object",
+        "properties": {
+          "room": {
+            "$ref": "#/components/schemas/Room"
+          },
+          "totalStudents": {
+            "type": "integer",
+            "example": 38
+          },
+          "totalCourses": {
+            "type": "integer",
+            "example": 8
+          },
+          "averageScore": {
+            "type": "number",
+            "example": 77.5
+          },
+          "passRate": {
+            "type": "number",
+            "example": 86.8
+          },
+          "completionRate": {
+            "type": "number",
+            "example": 79.2
+          },
+          "coursePerformance": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "course": {
+                  "type": "string",
+                  "example": "64f123456789abcd12345683"
+                },
+                "courseName": {
+                  "type": "string",
+                  "example": "คณิตศาสตร์"
+                },
+                "averageScore": {
+                  "type": "number",
+                  "example": 82.1
+                },
+                "passRate": {
+                  "type": "number",
+                  "example": 89.5
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "PageParam": {
+        "name": "page",
+        "in": "query",
+        "description": "Page number",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "LimitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "Number of items per page",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        }
+      },
+      "SearchParam": {
+        "name": "search",
+        "in": "query",
+        "description": "Search term",
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User login",
+        "description": "Authenticate user and return JWT token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string",
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            },
+                            "user": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User registration",
+        "description": "Register a new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string",
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            },
+                            "user": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get current user",
+        "description": "Get authenticated user profile",
+        "responses": {
+          "200": {
+            "description": "User profile retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "user": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/seed": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Seed default admin user",
+        "description": "Create default admin user if no users exist. Email: admin@mjk.com, Password: admin123",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Users already exist or seeded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer",
+                              "example": 1,
+                              "description": "Number of users created or existing users count"
+                            },
+                            "users": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "example": "64f123456789abcd12345678"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "example": "System Administrator"
+                                  },
+                                  "email": {
+                                    "type": "string",
+                                    "example": "admin@mjk.com"
+                                  },
+                                  "role": {
+                                    "type": "string",
+                                    "example": "admin"
+                                  },
+                                  "department": {
+                                    "type": "string",
+                                    "example": "IT"
+                                  },
+                                  "position": {
+                                    "type": "string",
+                                    "example": "System Administrator"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["User Management"],
+        "summary": "Get users list",
+        "description": "Retrieve paginated list of users with filtering and search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[role]",
+            "in": "query",
+            "description": "Filter by role",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "filter[department]",
+            "in": "query",
+            "description": "Filter by department",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["User Management"],
+        "summary": "Create user",
+        "description": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["User Management"],
+        "summary": "Get user by ID",
+        "description": "Retrieve a specific user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["User Management"],
+        "summary": "Update user",
+        "description": "Update an existing user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["User Management"],
+        "summary": "Delete user",
+        "description": "Soft delete a user (set isActive to false)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "tags": ["Role Management"],
+        "summary": "Get roles list",
+        "description": "Retrieve paginated list of roles with filtering",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Role"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Role Management"],
+        "summary": "Create role",
+        "description": "Create a new role",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "ผู้จัดการฝ่ายขาย"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Sales Manager with team management permissions"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": ["user.read", "report.view"]
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Role created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Role"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/{id}": {
+      "get": {
+        "tags": ["Role Management"],
+        "summary": "Get role by ID",
+        "description": "Retrieve a specific role by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Role ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Role"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Role Management"],
+        "summary": "Update role",
+        "description": "Update an existing role",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Role ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "ผู้จัดการฝ่ายขาย"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Updated description"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": ["user.read", "report.view", "user.update"]
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Role updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Role"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Role Management"],
+        "summary": "Delete role",
+        "description": "Delete a role (only if no users are assigned)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Role ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot delete role - users assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/seed": {
+      "post": {
+        "tags": ["Role Management"],
+        "summary": "Seed roles",
+        "description": "Seed initial Thai roles and permissions",
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Roles seeded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permissions": {
+      "get": {
+        "tags": ["Permission Management"],
+        "summary": "Get permissions list",
+        "description": "Retrieve paginated list of permissions with filtering",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[module]",
+            "in": "query",
+            "description": "Filter by module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[action]",
+            "in": "query",
+            "description": "Filter by action",
+            "schema": {
+              "type": "string",
+              "enum": ["create", "read", "update", "delete", "access", "hr_view", "approve", "reject", "balance_manage", "export", "submit", "reports"]
+            }
+          },
+          {
+            "name": "filter[type]",
+            "in": "query",
+            "description": "Filter by type",
+            "schema": {
+              "type": "string",
+              "enum": ["menu", "action", "input"]
+            }
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permissions list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Permission"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Permission Management"],
+        "summary": "Create permission",
+        "description": "Create a new permission",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "module", "action", "resource"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "user.export"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Export user data to various formats"
+                  },
+                  "module": {
+                    "type": "string",
+                    "example": "user-management"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": ["create", "read", "update", "delete", "access", "hr_view", "approve", "reject", "balance_manage", "export", "submit", "reports"],
+                    "example": "export"
+                  },
+                  "resource": {
+                    "type": "string",
+                    "example": "user"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["menu", "action", "input"],
+                    "example": "action"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permission created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Permission"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permissions/{id}": {
+      "get": {
+        "tags": ["Permission Management"],
+        "summary": "Get permission by ID",
+        "description": "Retrieve a specific permission by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Permission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permission retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Permission"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Permission Management"],
+        "summary": "Update permission",
+        "description": "Update an existing permission",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Permission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "user.export"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Updated description"
+                  },
+                  "module": {
+                    "type": "string",
+                    "example": "user-management"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": ["create", "read", "update", "delete", "access", "hr_view", "approve", "reject", "balance_manage", "export", "submit", "reports"],
+                    "example": "export"
+                  },
+                  "resource": {
+                    "type": "string",
+                    "example": "user"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["menu", "action", "input"],
+                    "example": "action"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Permission updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Permission"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Permission Management"],
+        "summary": "Delete permission",
+        "description": "Delete a permission",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Permission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permission deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Permission not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permissions/seed": {
+      "post": {
+        "tags": ["Permission Management"],
+        "summary": "Seed permissions",
+        "description": "Seed comprehensive permission set with 47 initial permissions",
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Permissions seeded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permissions/modules": {
+      "get": {
+        "tags": ["Permission Management"],
+        "summary": "Get distinct modules",
+        "description": "Get list of distinct permission modules",
+        "responses": {
+          "200": {
+            "description": "Modules list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": ["dashboard", "user-management", "role-management"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permissions/status": {
+      "get": {
+        "tags": ["Permission Management"],
+        "summary": "Get system status",
+        "description": "Get permission system status overview",
+        "responses": {
+          "200": {
+            "description": "System status retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "totalPermissions": {
+                              "type": "integer",
+                              "example": 47
+                            },
+                            "activePermissions": {
+                              "type": "integer",
+                              "example": 45
+                            },
+                            "totalModules": {
+                              "type": "integer",
+                              "example": 3
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms": {
+      "get": {
+        "tags": ["Room Management"],
+        "summary": "Get rooms list",
+        "description": "Retrieve paginated list of rooms with filtering and search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[grade]",
+            "in": "query",
+            "description": "Filter by grade level",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter[academicYear]",
+            "in": "query",
+            "description": "Filter by academic year",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rooms list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Room"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Room Management"],
+        "summary": "Create room",
+        "description": "Create a new room/classroom",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Room created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Room"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{id}": {
+      "get": {
+        "tags": ["Room Management"],
+        "summary": "Get room by ID",
+        "description": "Retrieve a specific room by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Room ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Room"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Room Management"],
+        "summary": "Update room",
+        "description": "Update an existing room",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Room ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Room"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Room Management"],
+        "summary": "Delete room",
+        "description": "Soft delete a room (set isActive to false)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Room ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students": {
+      "get": {
+        "tags": ["Student Management"],
+        "summary": "Get students list",
+        "description": "Retrieve paginated list of students with filtering and search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[room]",
+            "in": "query",
+            "description": "Filter by room ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Students list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Student"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Student Management"],
+        "summary": "Create student",
+        "description": "Create a new student",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Student created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Student"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "tags": ["Student Management"],
+        "summary": "Get student by ID",
+        "description": "Retrieve a specific student by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Student ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Student"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Student Management"],
+        "summary": "Update student",
+        "description": "Update an existing student",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Student ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Student"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Student Management"],
+        "summary": "Delete student",
+        "description": "Soft delete a student (set isActive to false)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Student ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/import": {
+      "post": {
+        "tags": ["Student Management"],
+        "summary": "Import students from CSV",
+        "description": "Import multiple students from CSV file",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "CSV file containing student data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Students imported successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "imported": {
+                              "type": "integer",
+                              "example": 25
+                            },
+                            "failed": {
+                              "type": "integer",
+                              "example": 2
+                            },
+                            "errors": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "row": {
+                                    "type": "integer"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid CSV format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/auth/login": {
+      "post": {
+        "tags": ["Student Management"],
+        "summary": "Student login",
+        "description": "Authenticate student with studentId and password",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string",
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            },
+                            "student": {
+                              "$ref": "#/components/schemas/Student"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courses": {
+      "get": {
+        "tags": ["Course Management"],
+        "summary": "Get courses list",
+        "description": "Retrieve paginated list of courses with filtering and search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[teacher]",
+            "in": "query",
+            "description": "Filter by teacher ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[academicYear]",
+            "in": "query",
+            "description": "Filter by academic year",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter[semester]",
+            "in": "query",
+            "description": "Filter by semester",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Courses list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Course"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Course Management"],
+        "summary": "Create course",
+        "description": "Create a new course",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Course created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Course"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courses/{id}": {
+      "get": {
+        "tags": ["Course Management"],
+        "summary": "Get course by ID",
+        "description": "Retrieve a specific course by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Course"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Course Management"],
+        "summary": "Update course",
+        "description": "Update an existing course",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Course updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Course"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Course Management"],
+        "summary": "Delete course",
+        "description": "Soft delete a course (set isActive to false)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lessons": {
+      "get": {
+        "tags": ["Lesson Management"],
+        "summary": "Get lessons list",
+        "description": "Retrieve paginated list of lessons with filtering",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[course]",
+            "in": "query",
+            "description": "Filter by course ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[isPublished]",
+            "in": "query",
+            "description": "Filter by published status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "filter[isActive]",
+            "in": "query",
+            "description": "Filter by active status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lessons list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Lesson"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Lesson Management"],
+        "summary": "Create lesson",
+        "description": "Create a new lesson",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lesson created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Lesson"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lessons/{id}": {
+      "get": {
+        "tags": ["Lesson Management"],
+        "summary": "Get lesson by ID",
+        "description": "Retrieve a specific lesson by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Lesson ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lesson retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Lesson"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lesson not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Lesson Management"],
+        "summary": "Update lesson",
+        "description": "Update an existing lesson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Lesson ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lesson updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Lesson"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lesson not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Lesson Management"],
+        "summary": "Delete lesson",
+        "description": "Soft delete a lesson (set isActive to false)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Lesson ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lesson deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lesson not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lessons/{id}/publish": {
+      "put": {
+        "tags": ["Lesson Management"],
+        "summary": "Publish lesson",
+        "description": "Publish or unpublish a lesson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Lesson ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["isPublished"],
+                "properties": {
+                  "isPublished": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lesson publish status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Lesson"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lesson not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quizzes": {
+      "get": {
+        "tags": ["Quiz Management"],
+        "summary": "Get quizzes list",
+        "description": "Retrieve paginated list of quizzes with filtering",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "$ref": "#/components/parameters/SearchParam"
+          },
+          {
+            "name": "filter[course]",
+            "in": "query",
+            "description": "Filter by course ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[lesson]",
+            "in": "query",
+            "description": "Filter by lesson ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quizzes list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Quiz"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Quiz Management"],
+        "summary": "Create quiz",
+        "description": "Create a new quiz",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuizCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Quiz created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Quiz"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quizzes/{id}": {
+      "get": {
+        "tags": ["Quiz Management"],
+        "summary": "Get quiz by ID",
+        "description": "Retrieve a specific quiz by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Quiz"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Quiz Management"],
+        "summary": "Update quiz",
+        "description": "Update an existing quiz",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuizUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quiz updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Quiz"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Quiz Management"],
+        "summary": "Delete quiz",
+        "description": "Delete a quiz",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quizzes/{id}/questions": {
+      "get": {
+        "tags": ["Quiz Management"],
+        "summary": "Get quiz questions",
+        "description": "Retrieve all questions for a specific quiz",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz questions retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QuizQuestion"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz-attempts": {
+      "get": {
+        "tags": ["Quiz Attempts"],
+        "summary": "Get quiz attempts list",
+        "description": "Retrieve paginated list of quiz attempts with filtering",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "name": "filter[quiz]",
+            "in": "query",
+            "description": "Filter by quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[student]",
+            "in": "query",
+            "description": "Filter by student ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[isGraded]",
+            "in": "query",
+            "description": "Filter by graded status",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz attempts list retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QuizAttempt"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz-attempts/my-attempts": {
+      "get": {
+        "tags": ["Quiz Attempts"],
+        "summary": "Get current student's quiz attempts",
+        "description": "Retrieve quiz attempts for the authenticated student",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageParam"
+          },
+          {
+            "$ref": "#/components/parameters/LimitParam"
+          },
+          {
+            "name": "filter[quiz]",
+            "in": "query",
+            "description": "Filter by quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student quiz attempts retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QuizAttempt"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz-attempts/start": {
+      "post": {
+        "tags": ["Quiz Attempts"],
+        "summary": "Start quiz attempt",
+        "description": "Start a new quiz attempt for a student",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["quiz"],
+                "properties": {
+                  "quiz": {
+                    "type": "string",
+                    "example": "64f123456789abcd12345686"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Quiz attempt started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/QuizAttempt"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot start quiz (max attempts reached, not available, etc.)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz-attempts/{id}/submit": {
+      "post": {
+        "tags": ["Quiz Attempts"],
+        "summary": "Submit quiz attempt",
+        "description": "Submit answers for a quiz attempt",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz Attempt ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["answers"],
+                "properties": {
+                  "answers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionIndex": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "answer": {
+                          "type": "string",
+                          "example": "5"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quiz attempt submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/QuizAttempt"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz attempt not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz-attempts/{id}": {
+      "get": {
+        "tags": ["Quiz Attempts"],
+        "summary": "Get quiz attempt by ID",
+        "description": "Retrieve a specific quiz attempt by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz Attempt ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz attempt retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/QuizAttempt"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz attempt not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz-attempts/{id}/grade": {
+      "put": {
+        "tags": ["Quiz Attempts"],
+        "summary": "Grade quiz attempt",
+        "description": "Manually grade a quiz attempt (for essay questions)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Quiz Attempt ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["grades"],
+                "properties": {
+                  "grades": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionIndex": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "teacherScore": {
+                          "type": "number",
+                          "example": 8
+                        },
+                        "teacherFeedback": {
+                          "type": "string",
+                          "example": "คำตอบดีแต่ยังขาดรายละเอียด"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quiz attempt graded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/QuizAttempt"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz attempt not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/student/{studentId}": {
+      "get": {
+        "tags": ["Reports & Analytics"],
+        "summary": "Get student performance report",
+        "description": "Retrieve comprehensive performance report for a student",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "description": "Student ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student report retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/StudentReport"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/course/{courseId}": {
+      "get": {
+        "tags": ["Reports & Analytics"],
+        "summary": "Get course performance report",
+        "description": "Retrieve comprehensive performance report for a course",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course report retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/CourseReport"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/quiz/{quizId}": {
+      "get": {
+        "tags": ["Reports & Analytics"],
+        "summary": "Get quiz performance report",
+        "description": "Retrieve comprehensive performance report for a quiz",
+        "parameters": [
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "description": "Quiz ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz report retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/QuizReport"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quiz not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/class/{roomId}": {
+      "get": {
+        "tags": ["Reports & Analytics"],
+        "summary": "Get class performance report",
+        "description": "Retrieve comprehensive performance report for a class/room",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "description": "Room ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class report retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ClassReport"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/upload": {
+      "post": {
+        "tags": ["File Management"],
+        "summary": "Upload file",
+        "description": "Upload a file for lessons or other resources",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FileUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "filename": {
+                              "type": "string",
+                              "example": "lesson1_1234567890.pdf"
+                            },
+                            "url": {
+                              "type": "string",
+                              "example": "https://example.com/uploads/lesson1_1234567890.pdf"
+                            },
+                            "size": {
+                              "type": "integer",
+                              "example": 245760
+                            },
+                            "mimetype": {
+                              "type": "string",
+                              "example": "application/pdf"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file or file too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/{filename}": {
+      "delete": {
+        "tags": ["File Management"],
+        "summary": "Delete file",
+        "description": "Delete an uploaded file",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "description": "Filename to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Authentication and authorization endpoints"
+    },
+    {
+      "name": "User Management",
+      "description": "User CRUD operations and management"
+    },
+    {
+      "name": "Role Management",
+      "description": "Role-based access control operations"
+    },
+    {
+      "name": "Permission Management",
+      "description": "Permission management and assignment"
+    },
+    {
+      "name": "Room Management",
+      "description": "Manage classrooms and sections"
+    },
+    {
+      "name": "Student Management",
+      "description": "Manage students with CSV import support"
+    },
+    {
+      "name": "Course Management",
+      "description": "Manage courses and teacher assignments"
+    }
+  ]
+}
