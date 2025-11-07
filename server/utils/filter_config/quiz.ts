@@ -1,4 +1,4 @@
-import { FilterConfig } from '../queryParser'
+import { FilterConfig, commonFieldHandlers } from '../queryParser'
 
 export function createQuizFilterConfig(): FilterConfig {
   return {
@@ -7,10 +7,10 @@ export function createQuizFilterConfig(): FilterConfig {
     defaultSortOrder: 'desc',
     searchFields: ['title', 'description'],
     filterFields: {
-      title: { type: 'string', mongoField: 'title' },
-      course: { type: 'string', mongoField: 'course' },
-      lesson: { type: 'string', mongoField: 'lesson' },
-      isActive: { type: 'boolean', mongoField: 'isActive' }
+      title: commonFieldHandlers.string('title'),
+      course: commonFieldHandlers.string('course'),
+      lesson: commonFieldHandlers.string('lesson'),
+      isActive: commonFieldHandlers.boolean('isActive')
     }
   }
 }

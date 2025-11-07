@@ -116,7 +116,7 @@ export const API_RESPONSE_MESSAGES = {
 
   // Success Messages
   SUCCESS: {
-    th: 'เสำเร็จ',
+    th: 'สำเร็จ',
     en: 'successful'
   },
   LOGIN_SUCCESS: {

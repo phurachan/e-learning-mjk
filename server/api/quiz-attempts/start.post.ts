@@ -74,9 +74,33 @@ export default defineEventHandler(async (event) => {
     })
 
     if (unfinishedAttempt) {
-      throw createPredefinedError(API_RESPONSE_CODES.VALIDATION_ERROR, {
-        details: ['คุณมีการทำแบบทดสอบที่ยังไม่เสร็จ กรุณาทำให้เสร็จก่อน']
-      })
+      // Check if the unfinished attempt is expired
+      if (quiz.duration) {
+        const elapsedMinutes = (now.getTime() - unfinishedAttempt.startedAt.getTime()) / (1000 * 60)
+
+        if (elapsedMinutes > quiz.duration) {
+          // Auto-submit expired attempt with 0 score
+          unfinishedAttempt.submittedAt = now
+          unfinishedAttempt.timeSpent = Math.floor((now.getTime() - unfinishedAttempt.startedAt.getTime()) / 1000)
+          unfinishedAttempt.isGraded = true
+          unfinishedAttempt.score = 0
+          unfinishedAttempt.percentage = 0
+          unfinishedAttempt.isPassed = false
+          await unfinishedAttempt.save()
+
+          // Continue to create new attempt (fall through)
+        } else {
+          // Still has time, block starting new attempt
+          throw createPredefinedError(API_RESPONSE_CODES.VALIDATION_ERROR, {
+            details: ['คุณมีการทำแบบทดสอบที่ยังไม่เสร็จ กรุณาทำให้เสร็จก่อน']
+          })
+        }
+      } else {
+        // No duration limit, block starting new attempt
+        throw createPredefinedError(API_RESPONSE_CODES.VALIDATION_ERROR, {
+          details: ['คุณมีการทำแบบทดสอบที่ยังไม่เสร็จ กรุณาทำให้เสร็จก่อน']
+        })
+      }
     }
 
     // Check max attempts

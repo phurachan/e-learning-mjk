@@ -62,17 +62,19 @@
         </label>
 
         <!-- Student Info -->
-        <div class="hidden md:flex items-center gap-3">
-          <div class="text-right">
-            <div class="text-sm font-semibold">{{ studentName }}</div>
-            <div class="text-xs text-base-content/70">{{ studentId }}</div>
-          </div>
-          <div class="avatar placeholder">
-            <div class="bg-gradient-to-br from-blue-500 to-pink-500 text-white rounded-full w-10 !flex !items-center !justify-center">
-              <span class="text-lg font-bold">{{ studentInitial }}</span>
+        <ClientOnly>
+          <div class="hidden md:flex items-center gap-3">
+            <div class="text-right">
+              <div class="text-sm font-semibold">{{ studentName }}</div>
+              <div class="text-xs text-base-content/70">{{ studentId }}</div>
+            </div>
+            <div class="avatar placeholder">
+              <div class="bg-gradient-to-br from-blue-500 to-pink-500 text-white rounded-full w-10 !flex !items-center !justify-center">
+                <span class="text-lg font-bold">{{ studentInitial }}</span>
+              </div>
             </div>
           </div>
-        </div>
+        </ClientOnly>
 
         <!-- Mobile Menu -->
         <div class="dropdown dropdown-end lg:hidden">
@@ -102,17 +104,19 @@
               </NuxtLink>
             </li>
             <li class="md:hidden border-t mt-2 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="avatar placeholder">
-                  <div class="bg-gradient-to-br from-blue-500 to-pink-500 text-white rounded-full w-8 flex items-center justify-center">
-                    <span class="text-sm font-bold">{{ studentInitial }}</span>
+              <ClientOnly>
+                <div class="flex items-center gap-2">
+                  <div class="avatar placeholder">
+                    <div class="bg-gradient-to-br from-blue-500 to-pink-500 text-white rounded-full w-8 flex items-center justify-center">
+                      <span class="text-sm font-bold">{{ studentInitial }}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold">{{ studentName }}</div>
+                    <div class="text-xs text-base-content/70">{{ studentId }}</div>
                   </div>
                 </div>
-                <div>
-                  <div class="text-sm font-semibold">{{ studentName }}</div>
-                  <div class="text-xs text-base-content/70">{{ studentId }}</div>
-                </div>
-              </div>
+              </ClientOnly>
             </li>
             <li>
               <button @click="handleLogout" class="text-error">
@@ -134,6 +138,9 @@
     <main class="container mx-auto px-4 py-8">
       <slot />
     </main>
+
+    <!-- Toast Container -->
+    <BaseToastContainer />
   </div>
 </template>
 

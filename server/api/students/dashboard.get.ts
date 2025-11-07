@@ -1,7 +1,10 @@
 import Student from '../../models/Student'
 import Course from '../../models/Course'
+import Lesson from '../../models/Lesson'
+import LessonProgress from '../../models/LessonProgress'
 import Quiz from '../../models/Quiz'
 import QuizAttempt from '../../models/QuizAttempt'
+import { extractTokenFromHeader, verifyToken } from '../../utils/jwt'
 
 /**
  * GET /api/students/dashboard
@@ -14,15 +17,11 @@ import QuizAttempt from '../../models/QuizAttempt'
  */
 export default defineEventHandler(async (event) => {
   try {
-    // TODO: Get studentId from authenticated session
-    // const session = await getServerSession(event)
-    // const studentId = session.user.studentId
+    // Get token from Authorization header
+    const authHeader = getHeader(event, 'authorization')
+    const token = extractTokenFromHeader(authHeader)
 
-    // Mock: ใช้ studentId จาก query สำหรับทดสอบ
-    const query = getQuery(event)
-    const studentId = query.studentId as string
-
-    if (!studentId) {
+    if (!token) {
       throw createError({
         statusCode: 401,
         statusMessage: 'UNAUTHORIZED',
@@ -30,8 +29,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Verify and decode token
+    const decoded = verifyToken(token)
+
+    if (decoded.role !== 'student') {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'UNAUTHORIZED',
+        message: 'Invalid role',
+      })
+    }
+
     // 1. ดึงข้อมูลนักเรียน
-    const student = await Student.findOne({ studentId }).populate('room')
+    const student = await Student.findById(decoded.userId).populate('room')
 
     if (!student) {
       throw createError({
@@ -60,20 +70,39 @@ export default defineEventHandler(async (event) => {
       .sort({ code: 1 })
       .lean()
 
-    // TODO: คำนวณ progress จริง (จำนวนบทเรียนที่อ่านแล้ว / ทั้งหมด)
-    // ตอนนี้ใช้ mock progress
-    const coursesWithProgress = myCourses.map((course: any) => ({
-      _id: course._id,
-      courseId: course.code, // Use code as courseId for frontend
-      name: course.name,
-      description: course.description,
-      teacher: course.teacher,
-      academicYear: course.academicYear,
-      semester: course.semester,
-      room: student.room, // Return student's room
-      progress: Math.floor(Math.random() * 100), // Mock progress
-      totalLessons: 0 // TODO: Count actual lessons
-    }))
+    // Calculate real progress from LessonProgress
+    const coursesWithProgress = await Promise.all(
+      myCourses.map(async (course: any) => {
+        // Get all published lessons for this course
+        const totalLessons = await Lesson.countDocuments({
+          course: course._id,
+          isPublished: true
+        })
+
+        // Calculate actual completed lessons from LessonProgress
+        const completedLessons = await LessonProgress.countDocuments({
+          student: student._id,
+          course: course._id,
+          isCompleted: true
+        })
+
+        const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
+
+        return {
+          _id: course._id,
+          courseId: course.code, // Use code as courseId for frontend
+          name: course.name,
+          description: course.description,
+          teacher: course.teacher,
+          academicYear: course.academicYear,
+          semester: course.semester,
+          room: student.room, // Return student's room
+          progress, // Real progress from database
+          totalLessons,
+          completedLessons
+        }
+      })
+    )
 
     // 3. ดึงแบบทดสอบที่ต้องทำ (Upcoming Quizzes)
     const now = new Date()

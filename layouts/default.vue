@@ -99,9 +99,9 @@
             <div class="dropdown dropdown-end">
               <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
                 <BaseAvatar
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  name="Admin User"
-                  alt="Admin Profile"
+                  :src="currentUser?.avatar"
+                  :name="currentUser?.name || 'User'"
+                  :alt="currentUser?.name || 'User Profile'"
                   ring
                   ring-color="ring-primary"
                   clickable
@@ -112,13 +112,13 @@
                 <li class="menu-title">
                   <div class="flex items-center gap-2">
                     <BaseAvatar
-                      src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                      name="Admin User"
+                      :src="currentUser?.avatar"
+                      :name="currentUser?.name || 'User'"
                       size="sm"
                     />
                     <div>
-                      <div class="font-semibold">Admin User</div>
-                      <div class="text-xs text-base-content/70">admin@example.com</div>
+                      <div class="font-semibold">{{ currentUser?.name || 'User' }}</div>
+                      <div class="text-xs text-base-content/70">{{ currentUser?.email || '' }}</div>
                     </div>
                   </div>
                 </li>
@@ -228,12 +228,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 
 const route = useRoute()
 const authStore = useAuthStore()
+
+// Get user from authStore or cookie
+const currentUser = computed(() => {
+  // Try authStore first
+  if (authStore.user) {
+    return authStore.user
+  }
+
+  // Fallback to cookie
+  const userCookie = useCookie('user')
+  return userCookie.value || null
+})
 
 // Theme change handler
 const onThemeChange = (theme) => {
@@ -249,6 +261,9 @@ const isMobile = ref(false)
 const tooltipVisible = ref(false)
 const tooltipData = ref(null)
 const tooltipStyle = ref({})
+
+// Dynamic menu from permissions
+const { menuSections, fetchMenuPermissions } = useMenuPermissions()
 
 // Check if device is mobile
 const checkIsMobile = () => {
@@ -288,93 +303,16 @@ onMounted(async () => {
   if (typeof window !== 'undefined') {
     window.addEventListener('resize', checkIsMobile)
   }
-})
 
-// Menu configuration
-const menuSections = ref([
-  {
-    title: "Dashboard",
-    icon: "chart-bar",
-    items: [
-      {
-        path: "/admin",
-        label: "Overview",
-        icon: "home",
-        activeWhen: ["/admin"]
-      }
-    ]
-  },
-  {
-    title: "E-Learning",
-    icon: "academic-cap",
-    items: [
-      {
-        path: "/admin/rooms",
-        label: "จัดการห้องเรียน",
-        icon: "academic-cap"
-      },
-      {
-        path: "/admin/students",
-        label: "จัดการนักเรียน",
-        icon: "users"
-      },
-      {
-        path: "/admin/courses",
-        label: "จัดการรายวิชา",
-        icon: "book-open"
-      },
-      {
-        path: "/admin/lessons",
-        label: "จัดการบทเรียน",
-        icon: "document-text"
-      }
-    ]
-  },
-  {
-    title: "Settings",
-    icon: "users",
-    items: [
-      {
-        path: "/admin/user_management",
-        label: "จัดการผู้ใช้",
-        icon: "user",
-        badge: {
-          text: "New",
-          variant: "primary"
-        }
-      },
-    ]
-  },
-  {
-    title: "Examples",
-    icon: "beaker",
-    items: [
-      {
-        path: "/admin/demo",
-        label: "Demo",
-        icon: "server",
-      },
-      {
-        path: "/admin/components",
-        label: "Components",
-        icon: "puzzle-piece",
-        badge: {
-          text: "UI",
-          variant: "info"
-        }
-      },
-      {
-        path: "/admin/i18n-test",
-        label: "i18n Test",
-        icon: "language",
-        badge: {
-          text: "Test",
-          variant: "warning"
-        }
-      }
-    ]
+  // Wait for auth initialization to complete (handled by middleware/plugin)
+  // This ensures user data is loaded before fetching menu
+  if (!authStore.hasInitialized) {
+    await authStore.initializeAuth()
   }
-])
+
+  // Fetch menu permissions from database
+  await fetchMenuPermissions()
+})
 
 // Helper function to check if route is active
 const isActiveRoute = (itemPath, activeWhen = []) => {

@@ -3,6 +3,7 @@ import User from '~/server/models/User'
 import { extractTokenFromHeader, verifyToken } from '~/server/utils/jwt'
 import { connectMongoDB } from '~/server/utils/mongodb'
 import { API_RESPONSE_CODES, createPredefinedError, createSuccessResponse } from '~/server/utils/responseHandler'
+import { requirePermission } from '~/server/utils/permissions'
 
 export default defineEventHandler(async (event) => {
   await connectMongoDB()
@@ -19,17 +20,8 @@ export default defineEventHandler(async (event) => {
     // Verify and decode token
     const decoded = verifyToken(token)
 
-    // Find current user
-    const currentUser = await User.findById(decoded.userId)
-
-    if (!currentUser || !currentUser.isActive) {
-      throw createPredefinedError(API_RESPONSE_CODES.UNAUTHORIZED)
-    }
-
-    // Check if user has permission (admin or teacher)
-    if (currentUser.role !== 'admin' && currentUser.role !== 'teacher') {
-      throw createPredefinedError(API_RESPONSE_CODES.FORBIDDEN)
-    }
+    // Check if user has permission to access rooms
+    await requirePermission(decoded.userId, 'rooms.access')
 
     // Get room ID from route params
     const roomId = getRouterParam(event, 'id')

@@ -109,7 +109,11 @@ export const API_ENDPOINTS = {
     IMPORT: '/students/import',
     LOGIN: '/students/auth/login',
     CHANGE_PASSWORD: '/students/auth/change-password',
-    DASHBOARD: '/students/dashboard'
+    DASHBOARD: '/students/dashboard',
+    COURSES: '/students/courses',
+    LESSONS: '/students/lessons',
+    LESSON_COMPLETE: (id: string) => `/students/lessons/${id}/complete`,
+    LESSON_UNCOMPLETE: (id: string) => `/students/lessons/${id}/uncomplete`
   },
 
   // E-Learning: Courses

@@ -11,7 +11,7 @@
       <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
       <div class="absolute bottom-4 left-4 right-4">
         <div class="badge badge-sm bg-white/90 text-primary border-0">
-          {{ course.code }}
+          {{ course.courseId || course.code || 'N/A' }}
         </div>
       </div>
     </div>
@@ -63,9 +63,11 @@ import { AcademicCapIcon, UserIcon, CalendarIcon } from '@heroicons/vue/24/outli
 
 interface Props {
   course: {
-    id: string
+    id?: string
+    _id?: string
     name: string
-    code: string
+    code?: string
+    courseId?: string
     teacher?: {
       name: string
     }
@@ -96,7 +98,10 @@ const gradientBackground = computed(() => {
     'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
   ]
 
-  const hash = props.course.code.split('').reduce((acc, char) => {
+  // Use courseId or code, fallback to course name or _id
+  const identifier = props.course.courseId || props.course.code || props.course.name || props.course._id || props.course.id || ''
+
+  const hash = identifier.split('').reduce((acc, char) => {
     return acc + char.charCodeAt(0)
   }, 0)
 
@@ -104,7 +109,13 @@ const gradientBackground = computed(() => {
 })
 
 const handleClick = () => {
-  navigateTo(`/student/courses/${props.course.id}`)
+  // Use id first, fallback to _id
+  const courseId = props.course.id || props.course._id
+  if (!courseId) {
+    console.error('Course ID is missing:', props.course)
+    return
+  }
+  navigateTo(`/student/courses/${courseId}`)
 }
 </script>
 

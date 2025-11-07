@@ -5,10 +5,11 @@ import Room from './Room'
 import Student from './Student'
 import Course from './Course'
 import Lesson from './Lesson'
+import LessonProgress from './LessonProgress'
 import Quiz from './Quiz'
 import QuizAttempt from './QuizAttempt'
 
-export { User, Role, Permission, Room, Student, Course, Lesson, Quiz, QuizAttempt }
+export { User, Role, Permission, Room, Student, Course, Lesson, LessonProgress, Quiz, QuizAttempt }
 
 export type { IUser } from './User'
 export type { IRole } from './Role'
@@ -17,5 +18,6 @@ export type { IRoom } from './Room'
 export type { IStudent } from './Student'
 export type { ICourse } from './Course'
 export type { ILesson } from './Lesson'
+export type { ILessonProgress } from './LessonProgress'
 export type { IQuiz, IQuizQuestion } from './Quiz'
 export type { IQuizAttempt, IQuizAnswer } from './QuizAttempt'

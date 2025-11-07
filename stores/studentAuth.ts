@@ -121,22 +121,55 @@ export const useStudentAuthStore = defineStore('studentAuth', {
       }
     },
 
-    // Restore session from localStorage
+    // Restore session from cookie and localStorage
     restoreSession() {
-      if (process.client) {
-        const tokenCookie = useCookie('token')
-        const studentInfo = localStorage.getItem('student_info')
+      const tokenCookie = useCookie('token')
 
-        if (tokenCookie.value && studentInfo) {
-          try {
-            this.token = tokenCookie.value
-            this.student = JSON.parse(studentInfo)
-            this.isAuthenticated = true
-          } catch (error) {
-            console.error('Failed to restore session:', error)
-            this.logout()
+      // Check if token exists in cookie
+      if (tokenCookie.value) {
+        this.token = tokenCookie.value
+        this.isAuthenticated = true
+
+        // Try to restore student info from localStorage (client side only)
+        if (process.client) {
+          const studentInfo = localStorage.getItem('student_info')
+          if (studentInfo) {
+            try {
+              this.student = JSON.parse(studentInfo)
+            } catch (error) {
+              console.error('Failed to parse student info:', error)
+            }
           }
         }
+
+        // If we don't have student info, try to extract studentId from token
+        if (!this.student) {
+          try {
+            const { decodeToken } = useJwt()
+            const decoded = decodeToken(tokenCookie.value)
+
+            if (decoded && decoded.studentId) {
+              // Create minimal student object from token
+              this.student = {
+                id: decoded.userId,
+                studentId: decoded.studentId,
+                firstname: '',
+                lastname: '',
+                fullname: '',
+                avatar: null,
+                isChangePassword: false,
+                room: null
+              }
+            }
+          } catch (error) {
+            console.error('Failed to decode token:', error)
+          }
+        }
+      } else {
+        // No token, clear everything
+        this.token = null
+        this.student = null
+        this.isAuthenticated = false
       }
     }
   }

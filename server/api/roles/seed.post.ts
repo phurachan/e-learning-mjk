@@ -45,12 +45,25 @@ export default defineEventHandler(async (event) => {
         name: 'Admin',
         description: 'Full system access',
         permissions: [
+          // Dashboard
           'dashboard.access',
-          'components.access',
+
+          // E-Learning
+          'rooms.access',
+          'students.access',
+          'courses.access',
+          'lessons.access',
+
+          // User Management
           'user_management.access',
           'user_management.users',
           'user_management.roles',
           'user_management.permissions',
+
+          // Developer
+          'demo.access',
+          'components.access',
+          'i18n_test.access',
         ],
         isActive: true,
         createdBy: 'system'

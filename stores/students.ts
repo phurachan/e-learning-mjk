@@ -133,8 +133,16 @@ export const useStudentsStore = defineStore('students', {
         this.$patch(loadingState(requestData))
 
         const httpClient = useHttpClient()
-        const formData = new FormData()
-        formData.append('file', requestData.body!.file)
+
+        // Check if body is already a FormData, otherwise create one
+        let formData: FormData
+        if (requestData.body instanceof FormData) {
+          formData = requestData.body
+        } else {
+          // Legacy support for old format
+          formData = new FormData()
+          formData.append('file', requestData.body!.file)
+        }
 
         const response = await httpClient.post(
           API_ENDPOINTS.STUDENTS.IMPORT,

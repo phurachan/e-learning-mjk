@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
     // Generate JWT token
     const token = signToken({
       userId: student._id.toString(),
+      studentId: student.studentId, // Add studentId to token
       email: student.studentId, // Use studentId as email for JWT
       role: 'student'
     })

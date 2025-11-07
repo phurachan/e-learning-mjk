@@ -47,6 +47,12 @@
                   </label>
                   <ul tabindex="0" class="dropdown-content z-[100] menu p-2 shadow bg-base-100 rounded-box w-52">
                     <li>
+                      <a @click="closeDropdown(); viewStudents(room)" class="flex items-center gap-2">
+                        <BaseIcon name="users" class="w-4 h-4 text-info" />
+                        <span>{{ $t('rooms.viewStudents') }}</span>
+                      </a>
+                    </li>
+                    <li>
                       <a @click="closeDropdown(); editRoom(room)" class="flex items-center gap-2">
                         <BaseIcon name="pencil" class="w-4 h-4 text-primary" />
                         <span>{{ $t('common.edit') }}</span>
@@ -147,6 +153,7 @@
 <script setup lang="ts">
 import { useRoomsStore } from '~/stores/rooms'
 import type { Room } from '~/composables/data_models/rooms'
+import { BaseResponseError } from '~/composables/utility_models/http'
 
 definePageMeta({
   layout: 'default',
@@ -246,7 +253,8 @@ const fetchRooms = async () => {
     const response = await roomsStore.fetchRooms({ query })
     rooms.value = response.data || []
   } catch (error: any) {
-    toast.error(error.message || t('common.error'))
+    const errorMessage = BaseResponseError.getMessageTh(error, t('common.error'))
+    toast.error(errorMessage, t('common.error'))
   }
 }
 
@@ -324,6 +332,10 @@ const viewRoom = (room: Room) => {
   editRoom(room)
 }
 
+const viewStudents = (room: Room) => {
+  navigateTo(`/admin/students?roomId=${room.id}&roomName=${encodeURIComponent(room.name)}`)
+}
+
 const closeModal = () => {
   isModalOpen.value = false
 }
@@ -342,7 +354,8 @@ const handleSubmit = async () => {
     closeModal()
     fetchRooms()
   } catch (error: any) {
-    toast.error(error.message || t('common.error'))
+    const errorMessage = BaseResponseError.getMessageTh(error, t('common.error'))
+    toast.error(errorMessage, t('common.error'))
   }
 }
 
@@ -359,7 +372,8 @@ const deleteRoom = async (room: Room) => {
       toast.success(t('rooms.deleteSuccess'))
       fetchRooms()
     } catch (error: any) {
-      toast.error(error.message || t('common.error'))
+      const errorMessage = BaseResponseError.getMessageTh(error, t('common.error'))
+      toast.error(errorMessage, t('common.error'))
     }
   }
 }

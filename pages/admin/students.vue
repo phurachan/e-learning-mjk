@@ -1,5 +1,20 @@
 <template>
   <div class="space-y-6">
+    <!-- Breadcrumb when coming from rooms -->
+    <div v-if="fromRoomId && fromRoomName" class="breadcrumbs text-sm">
+      <ul>
+        <li>
+          <NuxtLink to="/admin/rooms" class="flex items-center gap-2">
+            <BaseIcon name="academic-cap" class="w-4 h-4" />
+            {{ $t('rooms.title') }}
+          </NuxtLink>
+        </li>
+        <li class="font-semibold">
+          {{ fromRoomName }} - {{ $t('students.title') }}
+        </li>
+      </ul>
+    </div>
+
     <BasePageHeader :title="$t('students.title')" :subtitle="$t('students.subtitle')">
       <template #actions>
         <BaseButton @click="openImportModal" variant="ghost">
@@ -193,6 +208,41 @@
           <BaseIcon name="document" class="w-5 h-5" />
           <span>{{ selectedFile.name }}</span>
         </div>
+
+        <!-- Import Mode Selection -->
+        <div class="divider">{{ $t('students.importMode') }}</div>
+
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-3">
+            <input type="radio" name="importMode" class="radio radio-primary" value="simple" v-model="importMode" />
+            <div>
+              <span class="label-text font-semibold">{{ $t('students.importModeSimple') }}</span>
+              <p class="text-xs text-base-content/70">{{ $t('students.importModeSimpleDesc') }}</p>
+            </div>
+          </label>
+        </div>
+
+        <div v-if="importMode === 'simple'" class="ml-8">
+          <BaseSelect v-model="importForm.selectedRoom" :options="roomSelectOptions"
+            :label="$t('students.importSelectRoom')"
+            :placeholder="$t('students.form.roomPlaceholder')" />
+        </div>
+
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-3">
+            <input type="radio" name="importMode" class="radio radio-primary" value="advanced" v-model="importMode" />
+            <div>
+              <span class="label-text font-semibold">{{ $t('students.importModeAdvanced') }}</span>
+              <p class="text-xs text-base-content/70">{{ $t('students.importModeAdvancedDesc') }}</p>
+            </div>
+          </label>
+        </div>
+
+        <div v-if="importMode === 'advanced'" class="ml-8">
+          <BaseCheckbox v-model="importForm.autoCreateRoom"
+            :label="$t('students.importAutoCreateRoom')" />
+          <p class="text-xs text-base-content/70 mt-1">{{ $t('students.importAutoCreateRoomDesc') }}</p>
+        </div>
       </div>
 
       <div class="modal-action">
@@ -200,7 +250,7 @@
           {{ $t('common.cancel') }}
         </BaseButton>
         <BaseButton @click="handleImport" variant="primary" :loading="studentsStore.isLoading"
-          :disabled="!selectedFile">
+          :disabled="!selectedFile || (importMode === 'simple' && !importForm.selectedRoom)">
           {{ $t('students.importButton') }}
         </BaseButton>
       </div>
@@ -280,6 +330,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
+const route = useRoute()
 const studentsStore = useStudentsStore()
 const roomsStore = useRoomsStore()
 
@@ -291,12 +342,21 @@ const students = ref<Student[]>([])
 const viewingStudent = ref<Student | null>(null)
 const selectedFile = ref<File | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
+const importMode = ref<'simple' | 'advanced'>('simple')
+const importForm = ref({
+  selectedRoom: '',
+  autoCreateRoom: true
+})
+
+// Get query params from route
+const fromRoomId = computed(() => route.query.roomId as string || null)
+const fromRoomName = computed(() => route.query.roomName as string || null)
 
 const filters = ref({
   page: 1,
   limit: 20,
   search: '',
-  room: '',
+  room: fromRoomId.value || '', // Initialize with roomId from query if present
   isActive: ''
 })
 
@@ -500,11 +560,21 @@ const deleteStudent = async (student: Student) => {
 
 const openImportModal = () => {
   selectedFile.value = null
+  importMode.value = 'simple'
+  importForm.value = {
+    selectedRoom: '',
+    autoCreateRoom: true
+  }
   isImportModalOpen.value = true
 }
 
 const closeImportModal = () => {
   selectedFile.value = null
+  importMode.value = 'simple'
+  importForm.value = {
+    selectedRoom: '',
+    autoCreateRoom: true
+  }
   isImportModalOpen.value = false
 }
 
@@ -517,9 +587,29 @@ const handleFileSelect = (event: Event) => {
 
 const handleImport = async () => {
   if (!selectedFile.value) return
+  if (importMode.value === 'simple' && !importForm.value.selectedRoom) {
+    toast.error(t('students.importPleaseSelectRoom'))
+    return
+  }
 
   try {
-    await studentsStore.importStudents({ body: { file: selectedFile.value } })
+    const formData = new FormData()
+    formData.append('file', selectedFile.value)
+    formData.append('importMode', importMode.value)
+
+    if (importMode.value === 'simple') {
+      formData.append('selectedRoom', importForm.value.selectedRoom)
+    } else {
+      formData.append('autoCreateRoom', importForm.value.autoCreateRoom.toString())
+    }
+
+    // Debug: Log FormData contents
+    console.log('FormData contents:')
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1])
+    }
+
+    await studentsStore.importStudents({ body: formData })
     toast.success(t('students.importSuccess'))
     closeImportModal()
     fetchStudents()
@@ -539,6 +629,7 @@ const downloadTemplate = () => {
     'address',
     'parentName',
     'parentPhone',
+    'roomCode',
     'isActive'
   ]
 
@@ -552,13 +643,29 @@ const downloadTemplate = () => {
     '123 ถนนสุขุมวิท กรุงเทพฯ 10110',
     'นายสมศักดิ์ ใจดี',
     '0898765432',
+    'M1-1',
+    'true'
+  ]
+
+  const exampleRow2 = [
+    '12346',
+    'สมหญิง',
+    'ใจงาม',
+    'password456',
+    '0823456789',
+    '2010-03-20',
+    '456 ถนนพระราม 9 กรุงเทพฯ 10110',
+    'นางสมหมาย ใจงาม',
+    '0887654321',
+    'M2-1',
     'true'
   ]
 
   const csvContent = [
     headers.join(','),
     exampleRow.join(','),
-    ',,,,,,,,,' // Empty row for user to fill
+    exampleRow2.join(',')
+    // Don't add empty row to avoid CSV parsing errors
   ].join('\n')
 
   const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })

@@ -2,6 +2,8 @@ import QuizAttempt from '~/server/models/QuizAttempt'
 import Student from '~/server/models/Student'
 import { extractTokenFromHeader, verifyToken } from '~/server/utils/jwt'
 import { connectMongoDB } from '~/server/utils/mongodb'
+import { parseQueryAndBuildFilter } from '~/server/utils/queryParser'
+import { createQuizAttemptFilterConfig } from '~/server/utils/filter_config/quizAttempt'
 import { API_RESPONSE_CODES, createPaginatedResponse, createPredefinedError } from '~/server/utils/responseHandler'
 
 export default defineEventHandler(async (event) => {
@@ -27,38 +29,32 @@ export default defineEventHandler(async (event) => {
     }
 
     const query: any = getQuery(event)
-    const page = parseInt(query.page as string) || 1
-    const limit = parseInt(query.limit as string) || 20
 
-    let filter: any = {
-      student: currentStudent._id
-    }
+    // Parse query and build MongoDB filter using filter config
+    const { parsedQuery, mongoFilter } = parseQueryAndBuildFilter(
+      query,
+      createQuizAttemptFilterConfig()
+    )
 
-    // Filter by quiz
-    if (query.quiz) {
-      try {
-        filter.quiz = new (await import('mongoose')).Types.ObjectId(query.quiz as string)
-      } catch (error) {
-        console.warn('Invalid ObjectId for quiz filter:', query.quiz)
-      }
-    }
+    // Always filter by current student
+    mongoFilter.student = currentStudent._id
 
-    // Filter by submitted attempts only
-    if (query.submitted !== undefined && query.submitted === 'true') {
-      filter.submittedAt = { $exists: true }
+    // Filter by submitted attempts only if specified
+    if (query.submitted === 'true' || query.submitted === true) {
+      mongoFilter.submittedAt = { $exists: true, $ne: null }
     }
 
     // Get total count
-    const total = await QuizAttempt.countDocuments(filter)
+    const total = await QuizAttempt.countDocuments(mongoFilter)
 
     // Get quiz attempts with pagination
-    const attempts = await QuizAttempt.find(filter)
-      .populate('quiz', 'title totalPoints passingScore showResultsImmediately')
+    const attempts = await QuizAttempt.find(mongoFilter)
+      .populate('quiz', 'title totalPoints passingScore showResultsImmediately course')
       .populate('student', 'studentId firstname lastname fullname')
       .populate('gradedBy', 'name email')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
+      .sort(parsedQuery.sort)
+      .skip(parsedQuery.skip)
+      .limit(parsedQuery.limit)
       .lean()
 
     // Transform attempts data
@@ -98,10 +94,10 @@ export default defineEventHandler(async (event) => {
     })
 
     return createPaginatedResponse(transformedAttempts, {
-      page,
-      limit,
+      page: parsedQuery.page,
+      limit: parsedQuery.limit,
       total,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / parsedQuery.limit)
     })
   } catch (error: any) {
     if (error.statusCode) {

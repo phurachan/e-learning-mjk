@@ -18,22 +18,22 @@
     />
     
     <!-- Icon (left) -->
-    <BaseIcon 
-      v-else-if="iconLeft" 
-      :name="iconLeft" 
-      :size="iconSize" 
+    <BaseIcon
+      v-else-if="iconLeft"
+      :name="iconLeft"
+      :size="iconSize"
     />
-    
+
     <!-- Button text/content -->
-    <span v-if="$slots.default || displayText">
+    <template v-if="$slots.default || displayText">
       <slot>{{ displayText }}</slot>
-    </span>
-    
+    </template>
+
     <!-- Icon (right) -->
-    <BaseIcon 
-      v-if="iconRight && !isLoading && !showSuccess" 
-      :name="iconRight" 
-      :size="iconSize" 
+    <BaseIcon
+      v-if="iconRight && !isLoading && !showSuccess"
+      :name="iconRight"
+      :size="iconSize"
     />
   </button>
 </template>
@@ -136,7 +136,7 @@ onUnmounted(cleanupTimer)
 
 // Button classes computation
 const buttonClasses = computed(() => {
-  const classes = ['btn']
+  const classes = ['btn', 'inline-flex', 'items-center', 'gap-2']
 
   // Size classes
   const sizeClasses = {

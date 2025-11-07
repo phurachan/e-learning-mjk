@@ -8,18 +8,20 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // Debug logging can be enabled when needed
   // console.log('MIDDLEWARE: Running for route:', to.path)
   
-  // Skip middleware for login page and API routes
-  if (to.path === '/login' || to.path.startsWith('/api/')) {
+  // Skip middleware for public routes (landing page, login pages, API routes)
+  const publicRoutes = ['/', '/login', '/student/login']
+  if (publicRoutes.includes(to.path) || to.path.startsWith('/api/')) {
     return
   }
-  
+
   // Wait for auth initialization to complete
   if (!authStore.hasInitialized) {
     await authStore.initializeAuth()
   }
-  
+
   // Check if user is authenticated after initialization
-  if (!authStore.isAuthenticated) {
+  // Skip auth check for student routes (they have their own auth)
+  if (!authStore.isAuthenticated && !to.path.startsWith('/student/')) {
     return navigateTo(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
   }
   

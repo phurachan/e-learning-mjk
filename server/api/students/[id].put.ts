@@ -4,6 +4,7 @@ import User from '~/server/models/User'
 import { extractTokenFromHeader, verifyToken } from '~/server/utils/jwt'
 import { connectMongoDB } from '~/server/utils/mongodb'
 import { API_RESPONSE_CODES, createPredefinedError, createSuccessResponse } from '~/server/utils/responseHandler'
+import { requirePermission } from '~/server/utils/permissions'
 
 export default defineEventHandler(async (event) => {
   await connectMongoDB()
@@ -27,10 +28,8 @@ export default defineEventHandler(async (event) => {
       throw createPredefinedError(API_RESPONSE_CODES.UNAUTHORIZED)
     }
 
-    // Check if user has permission (admin or teacher)
-    if (currentUser.role !== 'admin' && currentUser.role !== 'teacher') {
-      throw createPredefinedError(API_RESPONSE_CODES.FORBIDDEN)
-    }
+    // Check if user has permission to access students
+    await requirePermission(decoded.userId, 'students.access')
 
     // Get student ID from route params
     const studentId = getRouterParam(event, 'id')

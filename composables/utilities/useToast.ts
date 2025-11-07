@@ -15,10 +15,9 @@ interface Toast extends ToastOptions {
 }
 
 const toasts = ref<Toast[]>([])
+let toastIdCounter = 0
 
 export const useToast = () => {
-  let toastIdCounter = 0
-
   const createToast = (options: ToastOptions): string => {
     const id = `toast-${++toastIdCounter}`
     const toast: Toast = {

@@ -47,4 +47,10 @@ export interface StudentDeleteRequest {
 
 export interface StudentImportRequest {
   file: File
+  importMode?: string
+  selectedRoom?: string
+  autoCreateRoom?: boolean
 }
+
+// Allow StudentImportRequest to be FormData as well
+export type StudentImportBody = StudentImportRequest | FormData

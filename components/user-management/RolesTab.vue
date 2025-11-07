@@ -98,7 +98,7 @@
                   <div v-for="permission in permissions" :key="permission.id" class="form-control">
                     <label class="label cursor-pointer py-1">
                       <span class="label-text text-base-content text-sm">{{ permission.name }}</span>
-                      <input type="checkbox" class="checkbox checkbox-sm" :value="permission.name"
+                      <input type="checkbox" class="checkbox checkbox-sm" :value="permission.code"
                         v-model="roleForm.permissions" />
                     </label>
                   </div>
@@ -228,29 +228,29 @@ const getGroupedPermissionsByType = (type: 'menu' | 'action' | 'input') => {
 
 // Helper functions for permission management
 const selectAllPermissionsInModule = (permissions: any[]) => {
-  const permissionNames = permissions.map(p => p.name)
+  const permissionCodes = permissions.map(p => p.code)
   // Add all permissions from this module if not already present
-  permissionNames.forEach(permName => {
-    if (!roleForm.permissions.includes(permName)) {
-      roleForm.permissions.push(permName)
+  permissionCodes.forEach(permCode => {
+    if (!roleForm.permissions.includes(permCode)) {
+      roleForm.permissions.push(permCode)
     }
   })
 }
 
 const deselectAllPermissionsInModule = (permissions: any[]) => {
-  const permissionNames = permissions.map(p => p.name)
+  const permissionCodes = permissions.map(p => p.code)
   // Remove all permissions from this module
-  roleForm.permissions = roleForm.permissions.filter(permName =>
-    !permissionNames.includes(permName)
+  roleForm.permissions = roleForm.permissions.filter(permCode =>
+    !permissionCodes.includes(permCode)
   )
 }
 
 const isAllModulePermissionsSelected = (permissions: any[]) => {
-  return permissions.every(p => roleForm.permissions.includes(p.name))
+  return permissions.every(p => roleForm.permissions.includes(p.code))
 }
 
 const isSomeModulePermissionsSelected = (permissions: any[]) => {
-  return permissions.some(p => roleForm.permissions.includes(p.name))
+  return permissions.some(p => roleForm.permissions.includes(p.code))
 }
 
 

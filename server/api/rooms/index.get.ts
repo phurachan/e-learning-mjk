@@ -5,6 +5,7 @@ import { extractTokenFromHeader, verifyToken } from '~/server/utils/jwt'
 import { connectMongoDB } from '~/server/utils/mongodb'
 import { parseQueryAndBuildFilter } from '~/server/utils/queryParser'
 import { API_RESPONSE_CODES, createPaginatedResponse, createPredefinedError } from '~/server/utils/responseHandler'
+import { requirePermission } from '~/server/utils/permissions'
 
 export default defineEventHandler(async (event) => {
   await connectMongoDB()
@@ -28,10 +29,8 @@ export default defineEventHandler(async (event) => {
       throw createPredefinedError(API_RESPONSE_CODES.UNAUTHORIZED)
     }
 
-    // Check if user has permission (admin or teacher)
-    if (currentUser.role !== 'admin' && currentUser.role !== 'teacher') {
-      throw createPredefinedError(API_RESPONSE_CODES.FORBIDDEN)
-    }
+    // Check if user has permission to access rooms
+    await requirePermission(decoded.userId, 'rooms.access')
 
     const query: any = getQuery(event)
     

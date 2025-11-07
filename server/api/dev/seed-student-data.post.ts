@@ -8,14 +8,15 @@ import { seedStudentData } from '../../utils/seedStudentData'
  */
 export default defineEventHandler(async (event) => {
   try {
-    // TODO: Add environment check - only allow in development
-    // if (process.env.NODE_ENV === 'production') {
-    //   throw createError({
-    //     statusCode: 403,
-    //     statusMessage: 'FORBIDDEN',
-    //     message: 'This endpoint is only available in development mode',
-    //   })
-    // }
+    // Environment check - only allow in development
+    const config = useRuntimeConfig()
+    if (process.env.NODE_ENV === 'production' || config.public.environment === 'production') {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'FORBIDDEN',
+        message: 'This endpoint is only available in development mode',
+      })
+    }
 
     const result = await seedStudentData()
 

@@ -1,7 +1,7 @@
 // Base component interfaces and types
 export interface BaseComponentProps {
   id?: string
-  class?: string
+  class?: any
   disabled?: boolean
   loading?: boolean
 }
@@ -21,7 +21,7 @@ export interface MenuBadge {
 export interface IconProps extends BaseComponentProps {
   name: string
   variant?: 'outline' | 'solid' | 'mini'
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl'
 }
 
 export interface ButtonProps extends BaseComponentProps {

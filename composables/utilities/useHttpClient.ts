@@ -154,14 +154,30 @@ export const useHttpClient = (config: HttpClientConfig = {}) => {
       if (mergedConfig.onError) {
         await mergedConfig.onError(error)
       }
-      
-      // Handle specific error cases
-      if (error.status === 401) {
-        // Token expired, clear auth
+
+      // 🔥 Global Error Handler - จัดการ 401 แบบ centralized
+      if (error.status === 401 || error.statusCode === 401) {
+        // Clear token
         tokenCookie.value = null
-        await navigateTo('/login')
+
+        // ตรวจสอบว่าอยู่หน้า login อยู่แล้วหรือไม่
+        const router = useRouter()
+        const currentPath = router.currentRoute.value.path
+
+        if (!currentPath.includes('/login')) {
+          // แสดง toast notification
+          const { useToast } = await import('~/composables/utilities/useToast')
+          const toast = useToast()
+
+          // ดึงข้อความ error จาก response
+          const errorMessage = error.data?.messages?.th || error.data?.message || 'กรุณาเข้าสู่ระบบ'
+          toast.warning(errorMessage, 'หมดเวลาเซสชัน')
+
+          // Redirect to login
+          await navigateTo('/login')
+        }
       }
-      
+
       throw error
     }
   }

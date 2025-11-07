@@ -137,14 +137,6 @@ definePageMeta({
 const dashboardStore = useStudentDashboardStore()
 const authStore = useStudentAuthStore()
 
-// Restore session on mount
-authStore.restoreSession()
-
-// Check if user is logged in, redirect to login if not
-if (!authStore.isLoggedIn) {
-  navigateTo('/student/login')
-}
-
 // State
 const loading = computed(() => dashboardStore.isLoading)
 const loadingCourses = computed(() => dashboardStore.isLoading)
@@ -208,7 +200,8 @@ const fetchDashboardData = async () => {
     })
   } catch (error: any) {
     console.error('Failed to fetch dashboard data:', error)
-    // TODO: Show error alert using useToast or useAlert
+    const toast = useToast()
+    toast.error(BaseResponseError.getMessageTh(err, 'ไม่สามารถโหลดข้อมูลได้'), 'เกิดข้อผิดพลาด')
   }
 }
 
