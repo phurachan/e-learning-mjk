@@ -157,6 +157,26 @@ export const useStudentsStore = defineStore('students', {
       } finally {
         this.isLoading = false
       }
+    },
+
+    async resetPassword(requestData: BaseRequestData<{ id: string; password: string }>) {
+      try {
+        this.$patch(loadingState(requestData))
+
+        const httpClient = useHttpClient()
+        const response = await httpClient.put(
+          API_ENDPOINTS.STUDENTS.RESET_PASSWORD(requestData.body!.id),
+          { password: requestData.body!.password }
+        )
+
+        this.$patch(successState(response))
+        return response
+      } catch (error: any) {
+        this.$patch(errorState({ ...(error || {}) }))
+        throw new BaseResponseError(error?.data || error)
+      } finally {
+        this.isLoading = false
+      }
     }
   }
 })

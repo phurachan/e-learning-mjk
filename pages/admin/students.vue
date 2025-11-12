@@ -99,6 +99,9 @@
                     <button @click="editStudent(student)" class="btn btn-ghost btn-sm" :title="$t('common.edit')">
                       <BaseIcon name="pencil" class="w-4 h-4" />
                     </button>
+                    <button @click="openResetPasswordModal(student)" class="btn btn-ghost btn-sm" :title="$t('students.resetPassword')">
+                      <BaseIcon name="key" class="w-4 h-4" />
+                    </button>
                     <button @click="deleteStudent(student)" class="btn btn-ghost btn-sm text-error"
                       :title="$t('common.delete')">
                       <BaseIcon name="trash" class="w-4 h-4" />
@@ -315,6 +318,62 @@
         </BaseButton>
       </div>
     </BaseModal>
+
+    <BaseModal :visible="isResetPasswordModalOpen" @update:visible="isResetPasswordModalOpen = $event"
+      :title="$t('students.resetPassword')" size="md">
+      <div v-if="resetPasswordStudent" class="space-y-4">
+        <div class="alert alert-warning">
+          <BaseIcon name="exclamation-triangle" class="w-5 h-5" />
+          <div>
+            <p class="font-semibold">{{ $t('students.resetPasswordWarning') }}</p>
+            <p class="text-sm">{{ $t('students.resetPasswordDescription') }}</p>
+          </div>
+        </div>
+
+        <div class="bg-base-200 p-4 rounded-lg">
+          <p class="text-sm text-base-content/70">{{ $t('students.form.studentId') }}</p>
+          <p class="font-bold text-lg">{{ resetPasswordStudent.studentId }}</p>
+          <p class="text-sm text-base-content/70 mt-2">{{ $t('students.form.name') }}</p>
+          <p class="font-semibold">{{ resetPasswordStudent.fullname }}</p>
+        </div>
+
+        <form @submit.prevent="handleResetPassword">
+          <BaseInput
+            v-model="resetPasswordForm.password"
+            type="password"
+            :label="$t('students.form.newPassword')"
+            :placeholder="$t('students.form.passwordPlaceholder')"
+            required
+            :minlength="6"
+          />
+
+          <BaseInput
+            v-model="resetPasswordForm.confirmPassword"
+            type="password"
+            :label="$t('students.form.confirmPassword')"
+            :placeholder="$t('students.form.confirmPasswordPlaceholder')"
+            required
+            :minlength="6"
+            class="mt-4"
+          />
+
+          <div v-if="passwordError" class="alert alert-error mt-4">
+            <BaseIcon name="exclamation-circle" class="w-5 h-5" />
+            <span>{{ passwordError }}</span>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-action">
+        <BaseButton @click="closeResetPasswordModal" variant="ghost">
+          {{ $t('common.cancel') }}
+        </BaseButton>
+        <BaseButton @click="handleResetPassword" variant="primary" :loading="studentsStore.isLoading"
+          :disabled="!resetPasswordForm.password || !resetPasswordForm.confirmPassword">
+          {{ $t('students.resetPasswordButton') }}
+        </BaseButton>
+      </div>
+    </BaseModal>
   </div>
 </template>
 
@@ -337,9 +396,11 @@ const roomsStore = useRoomsStore()
 const isModalOpen = ref(false)
 const isImportModalOpen = ref(false)
 const isViewModalOpen = ref(false)
+const isResetPasswordModalOpen = ref(false)
 const isEditing = ref(false)
 const students = ref<Student[]>([])
 const viewingStudent = ref<Student | null>(null)
+const resetPasswordStudent = ref<Student | null>(null)
 const selectedFile = ref<File | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const importMode = ref<'simple' | 'advanced'>('simple')
@@ -347,6 +408,11 @@ const importForm = ref({
   selectedRoom: '',
   autoCreateRoom: true
 })
+const resetPasswordForm = ref({
+  password: '',
+  confirmPassword: ''
+})
+const passwordError = ref('')
 
 // Get query params from route
 const fromRoomId = computed(() => route.query.roomId as string || null)
@@ -678,6 +744,61 @@ const downloadTemplate = () => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+}
+
+const openResetPasswordModal = (student: Student) => {
+  resetPasswordStudent.value = student
+  resetPasswordForm.value = {
+    password: '',
+    confirmPassword: ''
+  }
+  passwordError.value = ''
+  isResetPasswordModalOpen.value = true
+}
+
+const closeResetPasswordModal = () => {
+  resetPasswordStudent.value = null
+  resetPasswordForm.value = {
+    password: '',
+    confirmPassword: ''
+  }
+  passwordError.value = ''
+  isResetPasswordModalOpen.value = false
+}
+
+const handleResetPassword = async () => {
+  passwordError.value = ''
+
+  // Validate
+  if (!resetPasswordForm.value.password || !resetPasswordForm.value.confirmPassword) {
+    passwordError.value = t('students.passwordRequired')
+    return
+  }
+
+  if (resetPasswordForm.value.password.length < 6) {
+    passwordError.value = t('students.passwordMinLength')
+    return
+  }
+
+  if (resetPasswordForm.value.password !== resetPasswordForm.value.confirmPassword) {
+    passwordError.value = t('students.passwordMismatch')
+    return
+  }
+
+  if (!resetPasswordStudent.value) return
+
+  try {
+    await studentsStore.resetPassword({
+      body: {
+        id: resetPasswordStudent.value.id,
+        password: resetPasswordForm.value.password
+      }
+    })
+    toast.success(t('students.resetPasswordSuccess'))
+    closeResetPasswordModal()
+  } catch (error: any) {
+    passwordError.value = error.message || t('common.error')
+  }
 }
 
 onMounted(async () => {

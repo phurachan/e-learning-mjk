@@ -109,6 +109,7 @@ export const API_ENDPOINTS = {
     IMPORT: '/students/import',
     LOGIN: '/students/auth/login',
     CHANGE_PASSWORD: '/students/auth/change-password',
+    RESET_PASSWORD: (id: string) => `/students/${id}/reset-password`,
     DASHBOARD: '/students/dashboard',
     COURSES: '/students/courses',
     LESSONS: '/students/lessons',

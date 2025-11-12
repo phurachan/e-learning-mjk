@@ -1,6 +1,4 @@
-import { unlink } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
+import { del } from '@vercel/blob'
 import User from '~/server/models/User'
 import Student from '~/server/models/Student'
 import { extractTokenFromHeader, verifyToken } from '~/server/utils/jwt'
@@ -38,40 +36,39 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Get filename from route params
-    const filename = getRouterParam(event, 'filename')
+    // Get URL from request body
+    const body = await readBody(event)
+    const url = body.url
 
-    if (!filename) {
+    if (!url) {
       throw createPredefinedError(API_RESPONSE_CODES.MISSING_REQUIRED_FIELDS, {
-        details: ['filename']
+        details: ['url']
       })
     }
 
-    // Validate filename to prevent directory traversal
-    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+    // Validate URL is from Vercel Blob
+    if (!url.includes('blob.vercel-storage.com') && !url.includes('public.blob.vercel-storage.com')) {
       throw createPredefinedError(API_RESPONSE_CODES.VALIDATION_ERROR, {
-        details: ['ชื่อไฟล์ไม่ถูกต้อง']
+        details: ['URL ไม่ถูกต้อง']
       })
     }
 
-    // Build file path
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
-    const filePath = join(uploadDir, filename)
+    try {
+      // Delete file from Vercel Blob
+      await del(url)
 
-    // Check if file exists
-    if (!existsSync(filePath)) {
-      throw createPredefinedError(API_RESPONSE_CODES.NOT_FOUND, {
-        details: ['ไม่พบไฟล์ที่ระบุ']
+      return createSuccessResponse({
+        url,
+        message: 'ลบไฟล์สำเร็จ'
       })
+    } catch (error: any) {
+      if (error.message && error.message.includes('not found')) {
+        throw createPredefinedError(API_RESPONSE_CODES.NOT_FOUND, {
+          details: ['ไม่พบไฟล์ที่ระบุ']
+        })
+      }
+      throw error
     }
-
-    // Delete file
-    await unlink(filePath)
-
-    return createSuccessResponse({
-      filename,
-      message: 'ลบไฟล์สำเร็จ'
-    })
   } catch (error: any) {
     if (error.statusCode) {
       throw error

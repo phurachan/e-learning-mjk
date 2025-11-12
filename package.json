@@ -21,6 +21,7 @@
     "@tiptap/extension-underline": "^3.6.2",
     "@tiptap/starter-kit": "^3.6.2",
     "@tiptap/vue-3": "^3.6.2",
+    "@vercel/blob": "^2.0.0",
     "@vuepic/vue-datepicker": "^11.0.2",
     "bcryptjs": "^3.0.2",
     "cally": "^0.8.0",

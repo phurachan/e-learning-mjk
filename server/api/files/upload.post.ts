@@ -1,5 +1,4 @@
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { put } from '@vercel/blob'
 import User from '~/server/models/User'
 import Student from '~/server/models/Student'
 import { extractTokenFromHeader, verifyToken } from '~/server/utils/jwt'
@@ -94,16 +93,17 @@ export default defineEventHandler(async (event) => {
         // Generate unique filename
         const uniqueFilename = generateUniqueFilename(file.filename)
 
-        // Save file to public/uploads directory
-        const uploadDir = join(process.cwd(), 'public', 'uploads')
-        const filePath = join(uploadDir, uniqueFilename)
-
-        await writeFile(filePath, file.data)
+        // Upload to Vercel Blob
+        const blob = await put(uniqueFilename, file.data, {
+          access: 'public',
+          contentType: file.type || 'application/octet-stream'
+        })
 
         uploadedFiles.push({
           originalName: file.filename,
           filename: uniqueFilename,
-          url: `/uploads/${uniqueFilename}`,
+          url: blob.url,
+          downloadUrl: blob.downloadUrl,
           type: file.type || 'application/octet-stream',
           size: file.data.length
         })
